@@ -39,7 +39,7 @@ public class CarsTableModel extends AbstractTableModel implements IObserver {
             case 1 -> car.getMake();
             case 2 -> car.getModel();
             case 3 -> car.getYear();
-            case 4 -> car.getOwnerId();
+            case 4 -> car.getOwner().getUsername();
             default -> null;
         };
     }

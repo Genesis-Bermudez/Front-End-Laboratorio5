@@ -4,50 +4,97 @@ import Domain.Dtos.cars.AddCarRequestDto;
 import Domain.Dtos.cars.CarResponseDto;
 import Domain.Dtos.cars.DeleteCarRequestDto;
 import Domain.Dtos.cars.UpdateCarRequestDto;
-import Presentation.Models.CarsTableModel;
 import Presentation.Observable;
 import Presentation.Views.CarsView;
 import Services.CarService;
 import Utilities.EventType;
-import java.util.List;
+
+import javax.swing.*;
 
 public class CarsController extends Observable {
-
     private final CarsView carsView;
     private final CarService carService;
 
     public CarsController(CarsView carsView, CarService carService) {
-        this.carService = carService;
         this.carsView = carsView;
+        this.carService = carService;
 
-        var tableModel = carsView.getTableModel();
-        addObserver(tableModel);
+        // Observer pattern
+        addObserver(carsView.getTableModel());
 
+        // Load initial cars
         var listOfCars = carService.listCars(1L);
-        tableModel.setCars(listOfCars);
+        carsView.getTableModel().setCars(listOfCars);
+
+        // Wire buttons
+        carsView.setAgregarAction(this::handleAddCar);
+        carsView.setBorrarAction(this::handleDeleteCar);
+        carsView.setUpdateAction(this::handleUpdateCar);
+        carsView.setClearAction(this::handleClear);
     }
 
-    // -------------------------
-    // CRUD Methods
-    // -------------------------
-    public void addCar(AddCarRequestDto dto, Long userId) {
-        CarResponseDto response = carService.addCar(dto, userId);
-        notifyObservers(EventType.CREATED, response);
-    }
+    private void handleAddCar() {
+        try {
+            String make = carsView.getCarMakeField().getText();
+            String model = carsView.getCarModelField().getText();
+            int year = Integer.parseInt(carsView.getYearTextField().getText());
 
-    public void updateCar(UpdateCarRequestDto dto, Long userId) {
-        CarResponseDto response = carService.updateCar(dto,  userId);
-        notifyObservers(EventType.UPDATED, response);
-    }
+            AddCarRequestDto dto = new AddCarRequestDto(make, model, year, 1L); // example userId
+            CarResponseDto response = carService.addCar(dto, 1L);
+            notifyObservers(EventType.CREATED, response);
 
-    public void deleteCar(DeleteCarRequestDto dto, Long userId) {
-        boolean success = carService.deleteCar(dto, userId);
-        if (success) {
-            notifyObservers(EventType.DELETED, dto.getId());
+            carsView.clearForm();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(carsView.getContentPanel(), "Error adding car: " + e.getMessage());
         }
     }
 
-    public List<CarResponseDto> listCars(Long userId) {
-        return carService.listCars(userId);
+    private void handleUpdateCar() {
+        int selectedRow = carsView.getCarsTable().getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(carsView.getContentPanel(), "Select a car to update");
+            return;
+        }
+
+        CarResponseDto selectedCar = carsView.getTableModel().getCars().get(selectedRow);
+
+        try {
+            String make = carsView.getCarMakeField().getText();
+            String model = carsView.getCarModelField().getText();
+            int year = Integer.parseInt(carsView.getYearTextField().getText());
+
+            UpdateCarRequestDto dto = new UpdateCarRequestDto(selectedCar.getId(), make, model, year);
+            CarResponseDto updated = carService.updateCar(dto, 1L);
+
+            // Update JTable via observer
+            notifyObservers(EventType.UPDATED, updated);
+
+            carsView.clearForm();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(carsView.getContentPanel(), "Error updating car: " + e.getMessage());
+        }
+    }
+
+    private void handleDeleteCar() {
+        int selectedRow = carsView.getCarsTable().getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(carsView.getContentPanel(), "Select a car to delete");
+            return;
+        }
+
+        CarResponseDto selectedCar = carsView.getTableModel().getCars().get(selectedRow);
+
+        DeleteCarRequestDto dto = new DeleteCarRequestDto(selectedCar.getId());
+        boolean success = carService.deleteCar(dto, 1L);
+        if (success) {
+            notifyObservers(EventType.DELETED, selectedCar.getId());
+            carsView.clearForm();
+        } else {
+            JOptionPane.showMessageDialog(carsView.getContentPanel(), "Error deleting car");
+        }
+    }
+
+    private void handleClear() {
+        carsView.clearForm();
     }
 }

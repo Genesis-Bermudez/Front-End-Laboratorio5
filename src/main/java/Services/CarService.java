@@ -37,7 +37,13 @@ public class CarService extends BaseService {
         );
 
         ResponseDto response = sendRequest(request);
-        return gson.fromJson(response.getData(), CarResponseDto.class);
+
+        if(!response.isSuccess()){
+            return null;
+        }
+
+        var responseFinal = gson.fromJson(response.getData(), CarResponseDto.class);
+        return responseFinal;
     }
 
     // -------------------------

@@ -1,22 +1,24 @@
 package Domain.Dtos.cars;
 
+import Domain.Dtos.auth.UserResponseDto;
+
 public class CarResponseDto {
     private Long id;
     private String make;
     private String model;
     private int year;
-    private Long ownerId;
+    private UserResponseDto owner;
     private String createdAt;
     private String updatedAt;
 
     public CarResponseDto() {}
 
-    public CarResponseDto(Long id, String make, String model, int year, Long ownerId, String createdAt, String updatedAt) {
+    public CarResponseDto(Long id, String make, String model, int year, UserResponseDto owner, String createdAt, String updatedAt) {
         this.id = id;
         this.make = make;
         this.model = model;
         this.year = year;
-        this.ownerId = ownerId;
+        this.owner = owner;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -30,8 +32,8 @@ public class CarResponseDto {
     public void setModel(String model) { this.model = model; }
     public int getYear() { return year; }
     public void setYear(int year) { this.year = year; }
-    public Long getOwnerId() { return ownerId; }
-    public void setOwnerId(Long ownerId) { this.ownerId = ownerId; }
+    public UserResponseDto getOwner() { return owner; }
+    public void setOwner(UserResponseDto ownerId) { this.owner = ownerId; }
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
     public String getUpdatedAt() { return updatedAt; }
