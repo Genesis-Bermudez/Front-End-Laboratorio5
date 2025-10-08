@@ -1,4 +1,3 @@
 package Utilities;
 
-public enum EventType {
-}
+public enum EventType { CREATED, UPDATED, DELETED }

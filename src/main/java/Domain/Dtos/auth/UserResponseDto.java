@@ -1,4 +1,4 @@
-package org.example.Domain.dtos.auth;
+package Domain.Dtos.auth;
 
 import java.time.LocalDateTime;
 
@@ -7,12 +7,12 @@ public class UserResponseDto {
     private String username;
     private String email;
     private String role;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private String createdAt;
+    private String updatedAt;
 
     public UserResponseDto() {}
 
-    public UserResponseDto(Long id, String username, String email, String role, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public UserResponseDto(Long id, String username, String email, String role, String createdAt, String updatedAt) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -33,10 +33,10 @@ public class UserResponseDto {
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public String getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
 }
 

@@ -1,4 +1,4 @@
-package org.example.Domain.dtos.cars;
+package Domain.Dtos.cars;
 
 public class UpdateCarRequestDto {
     private Long id; // Car ID

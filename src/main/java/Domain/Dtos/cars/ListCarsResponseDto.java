@@ -1,4 +1,4 @@
-package org.example.Domain.dtos.cars;
+package Domain.Dtos.cars;
 
 import java.util.List;
 

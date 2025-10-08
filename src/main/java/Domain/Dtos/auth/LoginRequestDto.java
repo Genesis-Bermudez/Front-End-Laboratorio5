@@ -1,4 +1,4 @@
-package org.example.Domain.dtos.auth;
+package Domain.Dtos.auth;
 
 public class LoginRequestDto {
     private String usernameOrEmail;

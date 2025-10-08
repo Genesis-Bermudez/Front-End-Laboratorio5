@@ -1,4 +1,4 @@
-package org.example.Domain.dtos;
+package Domain.Dtos;
 
 public class RequestDto {
     private String controller;  // e.g. "Auth", "Product"

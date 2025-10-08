@@ -1,4 +1,4 @@
-package org.example.Domain.dtos.cars;
+package Domain.Dtos.cars;
 
 public class CarResponseDto {
     private Long id;
@@ -6,7 +6,7 @@ public class CarResponseDto {
     private String model;
     private int year;
     private Long ownerId;
-    private String createdAt; // String instead of LocalDateTime for JSON
+    private String createdAt;
     private String updatedAt;
 
     public CarResponseDto() {}

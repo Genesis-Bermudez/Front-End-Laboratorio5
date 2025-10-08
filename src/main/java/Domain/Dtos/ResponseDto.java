@@ -1,4 +1,4 @@
-package org.example.Domain.dtos;
+package Domain.Dtos;
 
 public class ResponseDto {
     private boolean success;   // true if operation succeeded
