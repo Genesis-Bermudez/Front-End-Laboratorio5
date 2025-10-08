@@ -10,6 +10,7 @@ import Services.CarService;
 import Utilities.EventType;
 
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
 import java.util.List;
 
 public class CarsController extends Observable {
@@ -22,117 +23,152 @@ public class CarsController extends Observable {
 
         addObserver(carsView.getTableModel());
         loadCarsAsync();
-        attachViewListeners();
+        addListeners();
     }
 
     private void loadCarsAsync() {
         carsView.showLoading(true);
 
-        Thread.ofVirtual().start(() -> {
-            try {
-                List<CarResponseDto> cars = carService.listCarsAsync(1L).get();
-                SwingUtilities.invokeLater(() -> {
-                    carsView.getTableModel().setCars(cars);
-                    carsView.showLoading(false);
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                SwingUtilities.invokeLater(() -> carsView.showLoading(false));
+        SwingWorker<List<CarResponseDto>, Void> worker = new SwingWorker<>() {
+            @Override
+            protected List<CarResponseDto> doInBackground() throws Exception {
+                return carService.listCarsAsync(1L).get();
             }
-        });
+
+            @Override
+            protected void done() {
+                try {
+                    List<CarResponseDto> cars = get();
+                    carsView.getTableModel().setCars(cars);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    carsView.showLoading(false);
+                }
+            }
+        };
+        worker.execute();
     }
 
-    private void attachViewListeners() {
-        // Add
-        carsView.getAgregarButton().addActionListener(e -> {
-            String make = carsView.getCarMakeField().getText();
-            String model = carsView.getCarModelField().getText();
-            int year = Integer.parseInt(carsView.getYearTextField().getText());
+    private void addListeners() {
+        carsView.getAgregarButton().addActionListener(e -> handleAddCar());
+        carsView.getUpdateButton().addActionListener(e -> handleUpdateCar());
+        carsView.getBorrarButton().addActionListener(e -> handleDeleteCar());
+        carsView.getClearButton().addActionListener(e -> handleClearFields());
+        carsView.getCarsTable().getSelectionModel().addListSelectionListener(this::handleRowSelection);
+    }
 
-            AddCarRequestDto dto = new AddCarRequestDto(make, model, year, 1L);
-            carsView.showLoading(true);
+    // ---------------------------
+    // Action Handlers
+    // ---------------------------
+    private void handleAddCar() {
+        String make = carsView.getCarMakeField().getText();
+        String model = carsView.getCarModelField().getText();
+        int year = Integer.parseInt(carsView.getYearTextField().getText());
 
-            Thread.ofVirtual().start(() -> {
+        AddCarRequestDto dto = new AddCarRequestDto(make, model, year, 1L);
+
+        SwingWorker<CarResponseDto, Void> worker = new SwingWorker<>() {
+            @Override
+            protected CarResponseDto doInBackground() throws Exception {
+                return carService.addCarAsync(dto, 1L).get();
+            }
+
+            @Override
+            protected void done() {
                 try {
-                    var car = carService.addCarAsync(dto, 1L).get();
-                    SwingUtilities.invokeLater(() -> {
-                        notifyObservers(EventType.CREATED, car);
-                        carsView.clearFields();
-                        carsView.showLoading(false);
-                    });
+                    CarResponseDto car = get();
+                    notifyObservers(EventType.CREATED, car);
+                    carsView.clearFields();
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    SwingUtilities.invokeLater(() -> carsView.showLoading(false));
-                }
-            });
-        });
-
-        // Update
-        carsView.getUpdateButton().addActionListener(e -> {
-            int selectedRow = carsView.getCarsTable().getSelectedRow();
-            if (selectedRow < 0) return;
-
-            CarResponseDto selectedCar = carsView.getTableModel().getCars().get(selectedRow);
-            String make = carsView.getCarMakeField().getText();
-            String model = carsView.getCarModelField().getText();
-            int year = Integer.parseInt(carsView.getYearTextField().getText());
-
-            UpdateCarRequestDto dto = new UpdateCarRequestDto(selectedCar.getId(), make, model, year);
-
-            carsView.showLoading(true);
-
-            Thread.ofVirtual().start(() -> {
-                try {
-                    var updatedCar = carService.updateCarAsync(dto, 1L).get();
-                    SwingUtilities.invokeLater(() -> {
-                        notifyObservers(EventType.UPDATED, updatedCar);
-                        carsView.clearFields();
-                        carsView.showLoading(false);
-                    });
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    SwingUtilities.invokeLater(() -> carsView.showLoading(false));
-                }
-            });
-        });
-
-        // Delete
-        carsView.getBorrarButton().addActionListener(e -> {
-            int selectedRow = carsView.getCarsTable().getSelectedRow();
-            if (selectedRow < 0) return;
-
-            CarResponseDto selectedCar = carsView.getTableModel().getCars().get(selectedRow);
-            DeleteCarRequestDto dto = new DeleteCarRequestDto(selectedCar.getId());
-
-            carsView.showLoading(true);
-
-            Thread.ofVirtual().start(() -> {
-                try {
-                    boolean success = carService.deleteCarAsync(dto, 1L).get();
-                    SwingUtilities.invokeLater(() -> {
-                        if (success) notifyObservers(EventType.DELETED, selectedCar.getId());
-                        carsView.clearFields();
-                        carsView.showLoading(false);
-                    });
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    SwingUtilities.invokeLater(() -> carsView.showLoading(false));
-                }
-            });
-        });
-
-        // Clear
-        carsView.getClearButton().addActionListener(e -> carsView.clearFields());
-
-        // Row selection
-        carsView.getCarsTable().getSelectionModel().addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                int row = carsView.getCarsTable().getSelectedRow();
-                if (row >= 0) {
-                    CarResponseDto car = carsView.getTableModel().getCars().get(row);
-                    carsView.populateFields(car);
+                } finally {
+                    carsView.showLoading(false);
                 }
             }
-        });
+        };
+
+        carsView.showLoading(true);
+        worker.execute();
+    }
+
+    private void handleUpdateCar() {
+        int selectedRow = carsView.getCarsTable().getSelectedRow();
+        if (selectedRow < 0) return;
+
+        CarResponseDto selectedCar = carsView.getTableModel().getCars().get(selectedRow);
+        String make = carsView.getCarMakeField().getText();
+        String model = carsView.getCarModelField().getText();
+        int year = Integer.parseInt(carsView.getYearTextField().getText());
+
+        UpdateCarRequestDto dto = new UpdateCarRequestDto(selectedCar.getId(), make, model, year);
+
+        SwingWorker<CarResponseDto, Void> worker = new SwingWorker<>() {
+            @Override
+            protected CarResponseDto doInBackground() throws Exception {
+                return carService.updateCarAsync(dto, 1L).get();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    CarResponseDto updatedCar = get();
+                    notifyObservers(EventType.UPDATED, updatedCar);
+                    carsView.clearFields();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                } finally {
+                    carsView.showLoading(false);
+                }
+            }
+        };
+
+        carsView.showLoading(true);
+        worker.execute();
+    }
+
+    private void handleDeleteCar() {
+        int selectedRow = carsView.getCarsTable().getSelectedRow();
+        if (selectedRow < 0) return;
+
+        CarResponseDto selectedCar = carsView.getTableModel().getCars().get(selectedRow);
+        DeleteCarRequestDto dto = new DeleteCarRequestDto(selectedCar.getId());
+
+        SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Boolean doInBackground() throws Exception {
+                return carService.deleteCarAsync(dto, 1L).get();
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    Boolean success = get();
+                    if (success) notifyObservers(EventType.DELETED, selectedCar.getId());
+                    carsView.clearFields();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                } finally {
+                    carsView.showLoading(false);
+                }
+            }
+        };
+
+        carsView.showLoading(true);
+        worker.execute();
+    }
+
+    private void handleClearFields() {
+        carsView.clearFields();
+    }
+
+    private void handleRowSelection(ListSelectionEvent e) {
+        if (!e.getValueIsAdjusting()) {
+            int row = carsView.getCarsTable().getSelectedRow();
+            if (row >= 0) {
+                CarResponseDto car = carsView.getTableModel().getCars().get(row);
+                carsView.populateFields(car);
+            }
+        }
     }
 }

@@ -1,7 +1,6 @@
 package Presentation.Controllers;
 
 import Domain.Dtos.auth.UserResponseDto;
-import Presentation.IObserver;
 import Presentation.Observable;
 import Presentation.Views.CarsView;
 import Presentation.Views.LoginView;
@@ -31,15 +30,19 @@ public class LoginController extends Observable {
         String password = loginView.getPassword();
 
         if (username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(loginView, "Username or password cannot be empty", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Run login in a background thread
+        // Show overlay on EDT before starting SwingWorker
+        loginView.showLoading(true);
+
+        // Run login in background
         SwingWorker<UserResponseDto, Void> worker = new SwingWorker<>() {
             @Override
             protected UserResponseDto doInBackground() throws Exception {
-                loginView.showLoading(true);
-                return authService.login(username, password);
+                // Async login call
+                return authService.login(username, password).get();
             }
 
             @Override
@@ -52,7 +55,7 @@ public class LoginController extends Observable {
                         openMainView();
                         notifyObservers(EventType.UPDATED, user);
                     } else {
-                        JOptionPane.showMessageDialog(loginView, "Error when logging in...", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(loginView, "Invalid username or password", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -68,8 +71,7 @@ public class LoginController extends Observable {
 
         CarsView carsView = new CarsView(mainView);
         CarService carService = new CarService("localhost", 7000);
-        CarsController carsController = new CarsController(carsView, carService);
-        carsController.addObserver(carsView);
+        new CarsController(carsView, carService);
 
         Dictionary<String, JPanel> tabs = new Hashtable<>();
         tabs.put("Cars", carsView.getContentPanel());

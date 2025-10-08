@@ -1,13 +1,11 @@
 package Presentation.Views;
 
 import Domain.Dtos.cars.CarResponseDto;
-import Presentation.IObserver;
 import Presentation.Models.CarsTableModel;
-import Utilities.EventType;
 
 import javax.swing.*;
 
-public class CarsView implements IObserver {
+public class CarsView {
     private JPanel ContentPanel;
     private JPanel FormPanel;
     private JTable CarsTable;
@@ -62,10 +60,5 @@ public class CarsView implements IObserver {
         CarMakeField.setText(car.getMake());
         CarModelField.setText(car.getModel());
         YearTextField.setText(String.valueOf(car.getYear()));
-    }
-
-    @Override
-    public void update(EventType eventType, Object data) {
-        tableModel.update(eventType, data);
     }
 }
