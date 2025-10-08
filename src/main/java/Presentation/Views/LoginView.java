@@ -16,7 +16,7 @@ public class LoginView extends JFrame implements IObserver {
     private JButton LoginButton;
     private JTextField usernameField;
     private JPasswordField passwordField;
-    private JDialog loadingDialog;
+    private final LoadingOverlay loadingOverlay;
 
     public LoginView() {
         setTitle("Login");
@@ -24,7 +24,8 @@ public class LoginView extends JFrame implements IObserver {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(300, 175);
         setLocationRelativeTo(null);
-        createLoadingDialog();
+
+        loadingOverlay = new LoadingOverlay(this);
     }
 
     public void addLoginListener(ActionListener listener) {
@@ -53,21 +54,10 @@ public class LoginView extends JFrame implements IObserver {
         }
     }
 
-    private void createLoadingDialog() {
-        loadingDialog = new JDialog(this, "Please wait...", true);
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(new JLabel("Logging in..."), BorderLayout.CENTER);
-        panel.add(new JProgressBar(), BorderLayout.SOUTH);
-        loadingDialog.setContentPane(panel);
-        loadingDialog.setSize(200, 100);
-        loadingDialog.setLocationRelativeTo(this);
-    }
-
-    public void showLoading() {
-        SwingUtilities.invokeLater(() -> loadingDialog.setVisible(true));
-    }
-
-    public void hideLoading() {
-        SwingUtilities.invokeLater(() -> loadingDialog.setVisible(false));
+    /**
+     * Shows or hides the loading overlay.
+     */
+    public void showLoading(boolean visible) {
+        loadingOverlay.show(visible);
     }
 }

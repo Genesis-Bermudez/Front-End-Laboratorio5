@@ -19,56 +19,53 @@ public class CarsView implements IObserver {
     private JTextField CarMakeField;
     private JTextField CarModelField;
     private JTextField YearTextField;
-    private final CarsTableModel tableModel;
 
-    public CarsView() {
+    private final CarsTableModel tableModel;
+    private final LoadingOverlay loadingOverlay;
+
+    public CarsView(JFrame parentFrame) {
         tableModel = new CarsTableModel();
         CarsTable.setModel(tableModel);
 
-        // When a row is selected, populate the form
-        CarsTable.getSelectionModel().addListSelectionListener(e -> {
-            int selectedRow = CarsTable.getSelectedRow();
-            if (selectedRow != -1) {
-                CarResponseDto car = tableModel.getCars().get(selectedRow);
-                CarMakeField.setText(car.getMake());
-                CarModelField.setText(car.getModel());
-                YearTextField.setText(String.valueOf(car.getYear()));
-            }
-        });
+        // Reusable overlay instance
+        loadingOverlay = new LoadingOverlay(parentFrame);
     }
 
-    public void setAgregarAction(Runnable action) {
-        AgregarButton.addActionListener(e -> action.run());
+    /**
+     * Shows or hides the loading overlay.
+     */
+    public void showLoading(boolean visible) {
+        loadingOverlay.show(visible);
     }
 
-    public void setBorrarAction(Runnable action) {
-        BorrarButton.addActionListener(e -> action.run());
-    }
-
-    public void setUpdateAction(Runnable action) {
-        UpdateButton.addActionListener(e -> action.run());
-    }
-
-    public void setClearAction(Runnable action) {
-        ClearButton.addActionListener(e -> action.run());
-    }
-
+    // --- getters ---
     public CarsTableModel getTableModel() { return tableModel; }
     public JPanel getContentPanel() { return ContentPanel; }
     public JTable getCarsTable() { return CarsTable; }
+    public JButton getAgregarButton() { return AgregarButton; }
+    public JButton getBorrarButton() { return BorrarButton; }
+    public JButton getUpdateButton() { return UpdateButton; }
+    public JButton getClearButton() { return ClearButton; }
     public JTextField getCarMakeField() { return CarMakeField; }
     public JTextField getCarModelField() { return CarModelField; }
     public JTextField getYearTextField() { return YearTextField; }
 
-    @Override
-    public void update(EventType eventType, Object data) {
-        // Table updates are handled by tableModel observer
-    }
-
-    public void clearForm() {
+    // --- helper methods ---
+    public void clearFields() {
         CarMakeField.setText("");
         CarModelField.setText("");
         YearTextField.setText("");
-        CarsTable.clearSelection(); // Clear row selection
+        CarsTable.clearSelection();
+    }
+
+    public void populateFields(CarResponseDto car) {
+        CarMakeField.setText(car.getMake());
+        CarModelField.setText(car.getModel());
+        YearTextField.setText(String.valueOf(car.getYear()));
+    }
+
+    @Override
+    public void update(EventType eventType, Object data) {
+        tableModel.update(eventType, data);
     }
 }

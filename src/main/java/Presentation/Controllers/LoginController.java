@@ -38,13 +38,13 @@ public class LoginController extends Observable {
         SwingWorker<UserResponseDto, Void> worker = new SwingWorker<>() {
             @Override
             protected UserResponseDto doInBackground() throws Exception {
-                loginView.showLoading();
+                loginView.showLoading(true);
                 return authService.login(username, password);
             }
 
             @Override
             protected void done() {
-                loginView.hideLoading();
+                loginView.showLoading(false);
                 try {
                     UserResponseDto user = get();
                     if (user != null) {
@@ -66,7 +66,7 @@ public class LoginController extends Observable {
     private void openMainView() {
         MainView mainView = new MainView();
 
-        CarsView carsView = new CarsView();
+        CarsView carsView = new CarsView(mainView);
         CarService carService = new CarService("localhost", 7000);
         CarsController carsController = new CarsController(carsView, carService);
         carsController.addObserver(carsView);
