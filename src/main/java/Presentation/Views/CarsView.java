@@ -20,6 +20,7 @@ public class CarsView implements IObserver {
 
     public CarsView() {
         tableModel = new CarsTableModel();
+        CarsTable.setModel(tableModel);
     }
 
     public CarsTableModel getTableModel() {

@@ -1,6 +1,7 @@
 package Presentation.Controllers;
 
 import Domain.Dtos.auth.UserResponseDto;
+import Presentation.IObserver;
 import Presentation.Observable;
 import Presentation.Views.CarsView;
 import Presentation.Views.LoginView;
@@ -13,7 +14,7 @@ import javax.swing.*;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
-public class LoginController {
+public class LoginController extends Observable {
 
     private final LoginView loginView;
     private final AuthService authService;
@@ -47,11 +48,15 @@ public class LoginController {
                 try {
                     UserResponseDto user = get();
                     if (user != null) {
+                        loginView.setVisible(false);
                         openMainView();
+                        notifyObservers(EventType.UPDATED, user);
                     } else {
                         JOptionPane.showMessageDialog(loginView, "Error when logging in...", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(loginView, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         };

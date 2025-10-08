@@ -12,6 +12,7 @@ public class Main {
             LoginView loginView = new LoginView();
             AuthService authService = new AuthService("localhost", 7000);
             LoginController loginController = new LoginController(loginView, authService);
+            loginController.addObserver(loginView);
 
             loginView.setVisible(true);
     }

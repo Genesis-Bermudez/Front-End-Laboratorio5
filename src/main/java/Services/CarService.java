@@ -15,7 +15,7 @@ public class CarService extends BaseService {
     // -------------------------
     public CarResponseDto addCar(AddCarRequestDto dto, Long userId) {
         RequestDto request = new RequestDto(
-                "Car",
+                "Cars",
                 "add",
                 gson.toJson((dto)),
                 userId.toString()
@@ -30,7 +30,7 @@ public class CarService extends BaseService {
     // -------------------------
     public CarResponseDto updateCar(UpdateCarRequestDto dto, Long userId) {
         RequestDto request = new RequestDto(
-                "Car",
+                "Cars",
                 "update",
                 gson.toJson(dto),
                 userId.toString()
@@ -45,7 +45,7 @@ public class CarService extends BaseService {
     // -------------------------
     public boolean deleteCar(DeleteCarRequestDto dto, Long userId) {
         RequestDto request = new RequestDto(
-                "Car",
+                "Cars",
                 "delete",
                 gson.toJson(dto),
                 userId.toString()
@@ -60,7 +60,7 @@ public class CarService extends BaseService {
     // -------------------------
     public List<CarResponseDto> listCars(Long userId) {
         RequestDto request = new RequestDto(
-                "Car",
+                "Cars",
                 "list",
                 "",
                 userId.toString()

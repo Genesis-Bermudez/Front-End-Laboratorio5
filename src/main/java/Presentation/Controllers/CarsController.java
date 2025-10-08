@@ -4,6 +4,7 @@ import Domain.Dtos.cars.AddCarRequestDto;
 import Domain.Dtos.cars.CarResponseDto;
 import Domain.Dtos.cars.DeleteCarRequestDto;
 import Domain.Dtos.cars.UpdateCarRequestDto;
+import Presentation.Models.CarsTableModel;
 import Presentation.Observable;
 import Presentation.Views.CarsView;
 import Services.CarService;
@@ -19,7 +20,11 @@ public class CarsController extends Observable {
         this.carService = carService;
         this.carsView = carsView;
 
-        this.carsView.getTableModel().setCars(carService.listCars(1L));
+        var tableModel = carsView.getTableModel();
+        addObserver(tableModel);
+
+        var listOfCars = carService.listCars(1L);
+        tableModel.setCars(listOfCars);
     }
 
     // -------------------------
