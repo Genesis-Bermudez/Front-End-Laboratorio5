@@ -28,7 +28,7 @@ public class AuthService extends BaseService {
 
             ResponseDto response = sendRequest(request);
             if (!response.isSuccess()) {
-                return null; // or throw an exception if you prefer
+                return null;
             }
 
             return gson.fromJson(response.getData(), UserResponseDto.class);

@@ -34,14 +34,11 @@ public class LoginController extends Observable {
             return;
         }
 
-        // Show overlay on EDT before starting SwingWorker
         loginView.showLoading(true);
 
-        // Run login in background
         SwingWorker<UserResponseDto, Void> worker = new SwingWorker<>() {
             @Override
             protected UserResponseDto doInBackground() throws Exception {
-                // Async login call
                 return authService.login(username, password).get();
             }
 
@@ -69,13 +66,21 @@ public class LoginController extends Observable {
     private void openMainView() {
         MainView mainView = new MainView();
 
+        String host = "localhost";
+        int serverPort = 7000;
+        int messagesPort = 7001;
+
+
+        // Inicializar las vistas que van dentro del main view.
         CarsView carsView = new CarsView(mainView);
-        CarService carService = new CarService("localhost", 7000);
+        CarService carService = new CarService(host, serverPort);
         new CarsController(carsView, carService);
 
         Dictionary<String, JPanel> tabs = new Hashtable<>();
         tabs.put("Cars", carsView.getContentPanel());
 
+        // Conectarse al puerto 7001 para escuchar transmisiones del servidor
+        mainView.connectToMessages(host, messagesPort);
         mainView.AddTabs(tabs);
         mainView.setVisible(true);
     }

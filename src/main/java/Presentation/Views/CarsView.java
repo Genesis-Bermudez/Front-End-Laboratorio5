@@ -21,6 +21,7 @@ public class CarsView {
     private final CarsTableModel tableModel;
     private final LoadingOverlay loadingOverlay;
 
+    //  Cada tab requiere una referencia al parentFrame para poder implementar el overlay de carga.
     public CarsView(JFrame parentFrame) {
         tableModel = new CarsTableModel();
         CarsTable.setModel(tableModel);
