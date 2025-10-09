@@ -48,6 +48,7 @@ public class LoginView extends JFrame implements IObserver {
                 JOptionPane.showMessageDialog(this, "Welcome " + user.getUsername());
                 break;
             case UPDATED:
+                break;
             case DELETED:
                 JOptionPane.showMessageDialog(this, data.toString(), "Login Info", JOptionPane.ERROR_MESSAGE);
                 break;
