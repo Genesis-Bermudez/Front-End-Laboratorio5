@@ -1,14 +1,16 @@
 package Domain.Dtos.maintenances;
 
+import Domain.Dtos.cars.CarResponseDto;
+
 public class MaintenanceResponseDto {
     private Long id;
     private String description;
     private String type;
-    private Car carMaintenance;
+    private CarResponseDto carMaintenance;
 
     public MaintenanceResponseDto() {}
 
-    public MaintenanceResponseDto(Long id, String description, String type, Car carMaintenance) {
+    public MaintenanceResponseDto(Long id, String description, String type, CarResponseDto carMaintenance) {
         this.id = id;
         this.description = description;
         this.type = type;
@@ -22,6 +24,6 @@ public class MaintenanceResponseDto {
     public void setDescription(String description) { this.description = description; }
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
-    public Car getCarMaintenance() { return carMaintenance; }
-    public void setCarMaintenance(Car carMaintenance) {this.carMaintenance = carMaintenance; }
+    public CarResponseDto getCarMaintenance() { return carMaintenance; }
+    public void setCarMaintenance(CarResponseDto carMaintenance) {this.carMaintenance = carMaintenance; }
 }
