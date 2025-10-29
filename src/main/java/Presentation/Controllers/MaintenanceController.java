@@ -17,10 +17,12 @@ public class MaintenanceController extends Observable {
 
     private final MaintenanceView maintenanceView;
     private final MaintenanceService maintenanceService;
+    private final Long userID;
 
-    public MaintenanceController(MaintenanceView maintenanceView, MaintenanceService maintenanceService) {
+    public MaintenanceController(MaintenanceView maintenanceView, MaintenanceService maintenanceService, Long userID) {
         this.maintenanceView = maintenanceView;
         this.maintenanceService = maintenanceService;
+        this.userID = userID;
 
         addObserver(maintenanceView.getTableModel());
         loadMaintenancessAsync();
@@ -33,7 +35,7 @@ public class MaintenanceController extends Observable {
         SwingWorker<List<MaintenanceResponseDto>, Void> worker = new SwingWorker<>() {
             @Override
             protected List<MaintenanceResponseDto> doInBackground() throws Exception {
-                return maintenanceService.listMaintenancesAsync(1L).get();
+                return maintenanceService.listMaintenancesAsync(userID).get();
             }
 
             @Override
@@ -67,19 +69,24 @@ public class MaintenanceController extends Observable {
         String type = maintenanceView.getMaintenanceTypeField().getText();
         long carID = Long.parseLong(maintenanceView.getMaintenanceCarIDField().getText());
 
+        if (description.isEmpty() || type.isEmpty() || carID <= 0) {
+            JOptionPane.showMessageDialog(maintenanceView.getContentPanel(), "Por favor complete todos los campos", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         AddMaintenanceRequestDto dto = new AddMaintenanceRequestDto(description, type, carID);
 
         SwingWorker<MaintenanceResponseDto, Void> worker = new SwingWorker<>() {
             @Override
             protected MaintenanceResponseDto doInBackground() throws Exception {
-                return maintenanceService.addMaintenanceAsync(dto, 1L).get();
+                return maintenanceService.addMaintenanceAsync(dto, userID).get();
             }
 
             @Override
             protected void done() {
                 try {
-                    MaintenanceResponseDto car = get();
-                    notifyObservers(EventType.CREATED, car);
+                    MaintenanceResponseDto maintenance = get();
+                    notifyObservers(EventType.CREATED, maintenance);
                     maintenanceView.clearFields();
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -101,12 +108,17 @@ public class MaintenanceController extends Observable {
         String description = maintenanceView.getMaintenanceDescriptionField().getText();
         String type = maintenanceView.getMaintenanceTypeField().getText();
 
+        if (description.isEmpty() || type.isEmpty()) {
+            JOptionPane.showMessageDialog(maintenanceView.getContentPanel(), "Por favor complete todos los campos", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         UpdateMaintenanceRequestDto dto = new UpdateMaintenanceRequestDto(selectedMaintenance.getId(), description, type);
 
         SwingWorker<MaintenanceResponseDto, Void> worker = new SwingWorker<>() {
             @Override
             protected MaintenanceResponseDto doInBackground() throws Exception {
-                return maintenanceService.updateMaintenanceAsync(dto, 1L).get();
+                return maintenanceService.updateMaintenanceAsync(dto, userID).get();
             }
 
             @Override
@@ -137,7 +149,7 @@ public class MaintenanceController extends Observable {
         SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
             @Override
             protected Boolean doInBackground() throws Exception {
-                return maintenanceService.deleteMaintenanceAsync(dto, 1L).get();
+                return maintenanceService.deleteMaintenanceAsync(dto, userID).get();
             }
 
             @Override

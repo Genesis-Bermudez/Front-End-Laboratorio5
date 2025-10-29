@@ -18,35 +18,35 @@ public class MaintenanceService extends BaseService {
         super(host, port);
     }
 
-    public Future<MaintenanceResponseDto> addMaintenanceAsync(AddMaintenanceRequestDto dto, Long carID) {
+    public Future<MaintenanceResponseDto> addMaintenanceAsync(AddMaintenanceRequestDto dto, Long userId) {
         return executor.submit(() -> {
-            RequestDto request = new RequestDto("Maintenances", "add", gson.toJson(dto), carID.toString());
+            RequestDto request = new RequestDto("Maintenances", "add", gson.toJson(dto), userId.toString());
             ResponseDto response = sendRequest(request);
             if (!response.isSuccess()) return null;
             return gson.fromJson(response.getData(), MaintenanceResponseDto.class);
         });
     }
 
-    public Future<MaintenanceResponseDto> updateMaintenanceAsync(UpdateMaintenanceRequestDto dto, Long carID) {
+    public Future<MaintenanceResponseDto> updateMaintenanceAsync(UpdateMaintenanceRequestDto dto, Long userId) {
         return executor.submit(() -> {
-            RequestDto request = new RequestDto("Maintenances", "update", gson.toJson(dto), carID.toString());
+            RequestDto request = new RequestDto("Maintenances", "update", gson.toJson(dto), userId.toString());
             ResponseDto response = sendRequest(request);
             if (!response.isSuccess()) return null;
             return gson.fromJson(response.getData(), MaintenanceResponseDto.class);
         });
     }
 
-    public Future<Boolean> deleteMaintenanceAsync(DeleteMaintenanceRequestDto dto, Long carID) {
+    public Future<Boolean> deleteMaintenanceAsync(DeleteMaintenanceRequestDto dto, Long userId) {
         return executor.submit(() -> {
-            RequestDto request = new RequestDto("Maintenances", "delete", gson.toJson(dto), carID.toString());
+            RequestDto request = new RequestDto("Maintenances", "delete", gson.toJson(dto), userId.toString());
             ResponseDto response = sendRequest(request);
             return response.isSuccess();
         });
     }
 
-    public Future<List<MaintenanceResponseDto>> listMaintenancesAsync(Long carID) {
+    public Future<List<MaintenanceResponseDto>> listMaintenancesAsync(Long userId) {
         return executor.submit(() -> {
-            RequestDto request = new RequestDto("Maintenances", "list", "", carID.toString());
+            RequestDto request = new RequestDto("Maintenances", "list", "", userId.toString());
             ResponseDto response = sendRequest(request);
             if (!response.isSuccess()) return null;
             ListMaintenancesResponseDto listResponse = gson.fromJson(response.getData(), ListMaintenancesResponseDto.class);
